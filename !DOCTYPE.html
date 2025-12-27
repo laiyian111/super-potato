@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>唐傳奇：盛世遊蹤</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-paper: #fceecb;
+            --tang-yellow: #eebb4d;
+            --tang-red: #c93838;
+            --ink-black: #2b2b2b;
+            --gold: #cfb067;
+            --border-style: 4px double var(--tang-red);
+            --paper-texture: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmNlZWNiIi8+CjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4yIi8+Cjwvc3ZnPg==');
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            scrollbar-width: thin;
+            scrollbar-color: var(--tang-red) var(--bg-paper);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-paper);
+            background-image: var(--paper-texture);
+            font-family: 'Noto Serif TC', serif;
+            color: var(--ink-black);
+            overflow: hidden; 
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .center { align-items: center; justify-content: center; }
+        .tang-font { font-family: 'Ma Shan Zheng', cursive; }
+        
+        .btn {
+            background: var(--tang-red);
+            color: #fff;
+            border: 2px solid #5a1515;
+            padding: 12px 24px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Noto Serif TC', serif;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 2px;
+        }
+        .btn:hover { background: #a82626; transform: translateY(-2px); box-shadow: 4px 4px 10px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(1px); }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border: 1px solid var(--gold);
+            pointer-events: none;
+        }
+
+        /* --- COVER SCREEN --- */
+        #cover-screen {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #fdfbf2 0%, #e8dcb9 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        #cover-screen h1 {
+            font-size: 6rem;
+            color: var(--tang-red);
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 0px var(--gold);
+            letter-spacing: 10px;
+        }
+
+        .cover-decor {
+            width: 200px;
+            height: 4px;
+            background: var(--ink-black);
+            margin: 30px auto;
+            position: relative;
+        }
+        .cover-decor::before, .cover-decor::after {
+            content: '◆';
+            position: absolute;
+            top: -12px;
+            color: var(--tang-red);
+            font-size: 24px;
+        }
+        .cover-decor::before { left: -30px; }
+        .cover-decor::after { right: -30px; }
+
+        /* --- SETUP SCREEN (Esports Logic, Tang Aesthetics) --- */
+        #setup-screen {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            background: var(--bg-paper);
+            overflow-y: auto;
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--ink-black);
+            padding-bottom: 10px;
+        }
+
+        /* Grid layout for selection (Hero Select style) */
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: calc(100% - 150px);
+        }
+
+        .panel-box {
+            border: var(--border-style);
+            padding: 20px;
+            background: rgba(255,255,255,0.6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            font-size: 1.6rem;
+            color: var(--tang-red);
+            border-bottom: 1px solid var(--ink-black);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+
+        /* Player Rows */
+        .player-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid #ccc;
+        }
+        .player-row label { font-weight: bold; margin-bottom: 5px; color: var(--ink-black); }
+        .player-row input, .player-row select {
+            padding: 8px;
+            font-family: 'Noto Serif TC';
+            font-size: 1rem;
+            border: 1px solid var(--tang-red);
+            background: #fff;
+            margin-bottom: 5px;
+        }
+
+        /* Map Selection Cards */
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .map-card {
+            border: 2px solid #aaa;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+            position: relative;
+        }
+        .map-card:hover { border-color: var(--tang-red); transform: scale(1.02); }
+        .map-card.selected { 
+            border-color: var(--tang-red); 
+            background: #fffbf0; 
+            box-shadow: 0 0 15px rgba(201, 56, 56, 0.2);
+        }
+        .map-card.selected::after {
+            content: '已選定';
+            position: absolute;
+            top: 10px; right: 10px;
+            background: var(--tang-red);
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+        }
+        .map-title { font-size: 1.4rem; font-weight: bold; color: var(--ink-black); margin-bottom: 5px; }
+        .map-desc { font-size: 1rem; color: #666; }
+
+        /* --- GAME SCREEN --- */
+        #game-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: relative;
+        }
+
+        /* Left: Map (Scrollable) */
+        #map-area {
+            flex: 2; /* Takes up more space */
+            height: 100%;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: 250px;
+            background-color: var(--bg-paper);
+            scroll-behavior: smooth;
+        }
+
+        .scroll-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+            width: 100%;
+            max-width: 900px; /* Wider map */
+            margin: 0 auto;
+        }
+
+        /* Map Cells - Enlarged */
+        .map-cell {
+            width: 95%;
+            min-height: 160px; /* Taller */
+            border: 3px solid var(--ink-black);
+            margin: 15px 0;
+            background: #fff;
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .map-cell.active-turn {
+            border-color: var(--tang-red);
+            box-shadow: 0 0 20px var(--tang-yellow);
+            z-index: 10;
+            transform: scale(1.02);
+        }
+
+        .cell-index {
+            width: 60px;
+            background: var(--ink-black);
+            color: var(--bg-paper);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-family: 'Ma Shan Zheng';
+            border-right: 1px solid #000;
+        }
+
+        .cell-body {
+            flex: 1;
+            padding: 15px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .cell-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--tang-red);
+        }
+
+        .cell-effect {
+            font-weight: bold;
+            color: #b8860b;
+            font-size: 1.1rem;
+        }
+
+        .cell-text {
+            font-size: 1.1rem;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .cell-quote {
+            font-size: 0.95rem;
+            color: #666;
+            font-style: italic;
+            font-family: 'KaiTi', '楷體', serif;
+            border-left: 3px solid #ddd;
+            padding-left: 10px;
+            margin-top: 5px;
+        }
+
+        /* Tokens */
+        .player-token {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+            z-index: 20;
+            transition: top 0.4s ease-in-out, right 0.4s;
+        }
+
+        /* Right: Story Panel - Enlarged */
+        #story-panel {
+            flex: 1.2; /* Wider */
+            max-width: 500px;
+            background: #fffbf0;
+            border-left: 4px solid var(--ink-black);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            z-index: 50;
+            height: 100vh;
+        }
+        
+        #story-header {
+            padding: 20px;
+            background: var(--tang-red);
+            color: #fff;
+            text-align: center;
+            border-bottom: 4px solid var(--gold);
+        }
+
+        #story-scroll {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .story-block {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--tang-red);
+            animation: slideInRight 0.5s ease;
+        }
+        
+        .story-block h3 { color: var(--tang-red); margin: 0 0 10px 0; font-size: 1.3rem; }
+        .story-block p { font-size: 1.15rem; line-height: 1.8; margin: 0 0 10px 0; color: #333; }
+        .story-block blockquote {
+            margin: 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid var(--gold);
+            color: #555;
+            font-family: 'KaiTi', serif;
+            font-size: 1rem;
+        }
+
+        /* HUD & Controls */
+        #top-hud {
+            position: absolute;
+            top: 0; left: 0;
+            width: calc(100% - 500px); /* Adjust for story panel width */
+            height: 90px;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 2px solid var(--ink-black);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 40;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .hud-player {
+            flex: 1;
+            padding: 8px 15px;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s;
+        }
+        .hud-player.active { background: #fff5e6; border-bottom: 4px solid var(--tang-red); }
+        .hud-name { font-weight: bold; font-size: 1.1rem; }
+        .hud-money { color: #b8860b; font-weight: bold; }
+        .hud-skill { font-size: 0.85rem; color: #666; background: #eee; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;}
+
+        #control-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #fff;
+            border: 3px solid var(--ink-black);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 200px;
+        }
+
+        #dice-container {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--ink-black);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-family: 'Ma Shan Zheng';
+            color: var(--tang-red);
+            background: #fceecb;
+            border-radius: 10px;
+        }
+
+        .anim-shake { animation: shake 0.4s infinite; }
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Modal */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: #fff;
+            width: 600px;
+            padding: 40px;
+            border: 4px double var(--tang-red);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        .modal-quote {
+            font-family: 'KaiTi', serif;
+            font-size: 1.2rem;
+            color: #555;
+            margin: 20px 0;
+            padding: 10px;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO (Hidden) -->
+    <div style="display:none"></div>
+
+    <!-- COVER -->
+    <section id="cover-screen">
+        <h1 class="tang-font">唐傳奇：盛世遊蹤</h1>
+        <div class="cover-decor"></div>
+        <p style="font-size: 1.4rem; color: #555; margin-bottom: 40px; font-weight: bold;">
+            擲骰行萬里，一夢入大唐
+        </p>
+        <button class="btn" onclick="showSetup()" style="font-size: 1.5rem; padding: 15px 40px;">開卷入戲</button>
+    </section>
+
+    <!-- SETUP -->
+    <section id="setup-screen" class="hidden">
+        <div class="setup-header">
+            <h2 class="tang-font" style="font-size: 3rem; margin: 0; color: var(--tang-red);">佈局籌備</h2>
+            <p>請配置俠客身份與遊歷劇本</p>
+        </div>
+
+        <div class="setup-grid">
+            <!-- Left: Players -->
+            <div class="panel-box">
+                <div class="panel-title">俠客名冊</div>
+                <div style="margin-bottom: 10px;">
+                    <label>人數：</label>
+                    <select id="p-count" onchange="renderPlayerInputs()" style="padding:5px; font-size:1.1rem;">
+                        <option value="2">2人對弈</option>
+                        <option value="3">3人同行</option>
+                        <option value="4">4人混戰</option>
+                    </select>
+                </div>
+                <div id="player-config-area" style="overflow-y:auto; flex:1;">
+                    <!-- JS fills this -->
+                </div>
+            </div>
+
+            <!-- Right: Map -->
+            <div class="panel-box">
+                <div class="panel-title">選擇劇本</div>
+                <div class="map-container" id="map-select-area">
+                    <!-- JS fills this -->
+                </div>
+            </div>
+        </div>
+
+        <div class="flex center" style="margin-top: 20px; gap: 20px; padding-bottom: 40px;">
+            <button class="btn" style="background:#666; border-color:#444;" onclick="location.reload()">返回首頁</button>
+            <button class="btn" onclick="startGame()">展開旅程</button>
+        </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game-screen" class="hidden">
+        
+        <!-- Top HUD -->
+        <div id="top-hud">
+            <h2 class="tang-font" style="margin-right:30px; color:var(--tang-red); min-width: 150px;" id="game-map-title">地圖</h2>
+            <div id="hud-players" class="flex" style="flex:1;">
+                <!-- JS fills -->
+            </div>
+            <button class="btn" style="padding: 5px 15px; font-size: 1rem; margin-left: 10px;" onclick="tryExit()">退出</button>
+        </div>
+
+        <!-- Left Map -->
+        <div id="map-area">
+            <div class="scroll-content" id="map-cells-container">
+                <!-- JS fills 30 cells -->
+            </div>
+        </div>
+
+        <!-- Right Story -->
+        <div id="story-panel">
+            <div id="story-header">
+                <h2 class="tang-font" style="margin:0; font-size:2rem;">劇情紀實</h2>
+            </div>
+            <div id="story-scroll">
+                <div class="story-block">
+                    <small>系統</small>
+                    <h3>旅程開始</h3>
+                    <p>歡迎來到大唐盛世，請擲骰決定命運。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div id="control-panel">
+            <div style="text-align:center; font-weight:bold; font-size:1.2rem; color:var(--tang-red);" id="turn-indicator">玩家回合</div>
+            <div id="dice-container">?</div>
+            <button class="btn" id="btn-roll" onclick="actionRoll()">擲骰前行</button>
+            <button class="btn" id="btn-skill" onclick="actionSkill()" style="background:var(--gold); color:#000;">發動技能</button>
+        </div>
+
+    </section>
+
+    <!-- MODAL -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-box">
+            <h2 id="modal-title" class="tang-font" style="font-size:2.5rem; color:var(--tang-red); margin:0 0 15px 0;">標題</h2>
+            <div id="modal-desc" style="font-size:1.3rem; margin-bottom:10px;">描述</div>
+            <div id="modal-quote" class="modal-quote">原文</div>
+            <div id="modal-effect" style="color:#b8860b; font-weight:bold; font-size:1.2rem; margin-bottom:20px;">效果</div>
+            <button class="btn" onclick="closeModal()">繼續旅程</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: SKILLS (10 Types) ---
+        const SKILLS = [
+            { id: 's1', name: '神行太保', desc: '下回移動距離加倍' },
+            { id: 's2', name: '點石成金', desc: '立即獲得 600 銀兩' },
+            { id: 's3', name: '妙手空空', desc: '竊取每人 200 銀兩' },
+            { id: 's4', name: '護身符', desc: '抵擋一次金錢損失(被動)', passive: true },
+            { id: 's5', name: '移形換位', desc: '與隨機對手互換位置' },
+            { id: 's6', name: '時光逆流', desc: '指定對手後退 3 格' },
+            { id: 's7', name: '日進斗金', desc: '每回合獲得 80 銀兩(被動)', passive: true },
+            { id: 's8', name: '九轉金丹', desc: '破產時復活並得 1000 兩(被動)', passive: true },
+            { id: 's9', name: '縮地成寸', desc: '直接前進 5 格' },
+            { id: 's10', name: '定身咒', desc: '指定對手暫停一回合' }
+        ];
+
+        // --- DATA: 4 MAPS (30 Steps each with Quotes) ---
+        const MAPS = [
+            {
+                title: "聶隱娘",
+                desc: "刺客傳奇，劍術變幻。引用《唐人傳奇·聶隱娘》原文。",
+                steps: [
+                    { t: "魏博大將", d: "聶隱娘為魏博大將聶鋒之女，年方十歲。", q: "聶隱娘者，唐貞元中魏博大將聶鋒之女也。", e: 0 },
+                    { t: "尼姑乞食", d: "一尼姑見隱娘骨骼清奇，欲索之為徒。", q: "有尼乞食於鋒舍，見隱娘，悅之。", e: 0 },
+                    { t: "深夜遭劫", d: "尼姑夜入府中，盜走隱娘，不知所蹤。", q: "及夜，果失隱娘所向。", e: -100 },
+                    { t: "石室練功", d: "居於深山石室，吞食藥丸，不覺飢餓。", q: "與我一丸，令口中嚥，即不飢渴。", e: 50 },
+                    { t: "身輕如風", d: "習得輕功，奔跑如飛，無人能及。", q: "奔突，覺身輕如風。", e: 100 },
+                    { t: "猿猱之術", d: "攀緣崖壁，刺殺猿猴，劍術初成。", q: "一年後，刺猿猱百無一失。", e: 150 },
+                    { t: "斬虎斷首", d: "後又刺虎豹，皆斷其首而歸。", q: "後刺虎豹，皆決其首而歸。", e: 200 },
+                    { t: "試劍無名", d: "入都市刺殺惡人，白日殺人無人見。", q: "白日刺其人於都市，人莫能見。", e: 300 },
+                    { t: "化身飛蟲", d: "能化為蚊蟲，藏身無形。", q: "吾化為蠛蠓，潛入其腹中。", e: 200 },
+                    { t: "歸家省親", d: "學成歸來，父母悲喜交加。", q: "忽值隱娘歸，鋒大喜。", e: 100 },
+                    { t: "磨鏡少年", d: "隱娘選一磨鏡少年為夫，眾人皆異之。", q: "忽見一磨鏡少年，隱娘曰：此人可為夫。", e: -200 },
+                    { t: "父亡依靠", d: "聶鋒去世，魏博節度使知其有異能。", q: "數年，鋒死。魏博帥稍知其異。", e: 0 },
+                    { t: "受命行刺", d: "魏帥命其行刺陳許節度使劉昌裔。", q: "使隱娘致其首。", e: 0 },
+                    { t: "未卜先知", d: "劉昌裔神算，知隱娘將至，開門相迎。", q: "劉能神算，已知其至。", e: 100 },
+                    { t: "棄暗投明", d: "感佩劉公之德，決定倒戈歸順。", q: "僕願備灑掃，委質為主。", e: 300 },
+                    { t: "尋夫同歸", d: "接夫君同來，劉公給予厚賞。", q: "尋其夫至，劉給衣糧甚厚。", e: 100 },
+                    { t: "精精兒至", d: "魏帥怒，派殺手精精兒來襲。", q: "魏帥怒，使精精兒來殺隱娘。", e: 0 },
+                    { t: "紅白之戰", d: "隱娘與精精兒化作紅白光芒在空決鬥。", q: "有二幡子，一紅一白，飄飄互相擊。", e: 0 },
+                    { t: "斬殺敵手", d: "隱娘勝，將精精兒斬首。", q: "隱娘出曰：精精兒已斃。", e: 500 },
+                    { t: "空空兒襲", d: "魏帥再派妙手空空兒，神術難防。", q: "空空兒之神術，人莫能窺其用。", e: -100 },
+                    { t: "于闐玉護", d: "以于闐玉圍頸，隱娘化蚊護主。", q: "以于闐玉周其頸，隱娘化為蠛蠓潛入腸中。", e: 0 },
+                    { t: "金鐵交鳴", d: "空空兒擊玉未中，羞愧遁走。", q: "其聲鏗然，空空兒不中，恥之遁去。", e: 600 },
+                    { t: "功成名就", d: "危機解除，受劉公重賞。", q: "劉公益厚待之。", e: 300 },
+                    { t: "辭別歸隱", d: "劉公入朝，隱娘不願隨行。", q: "自此尋山水，訪神仙。", e: 0 },
+                    { t: "泛舟五湖", d: "與夫君泛舟江湖，不知所蹤。", q: "不知所終。", e: 100 },
+                    { t: "蜀地重逢", d: "劉公子在蜀地偶遇隱娘。", q: "劉縱在蜀，見隱娘騎白驢。", e: 50 },
+                    { t: "贈藥救急", d: "贈神藥一粒，保其平安。", q: "與藥一粒，令保之。", e: 100 },
+                    { t: "預知禍福", d: "告誡避禍之道，言之鑿鑿。", q: "歲後不在此矣。", e: 50 },
+                    { t: "仙蹤渺渺", d: "從此再無人見過隱娘。", q: "後無復見。", e: 0 },
+                    { t: "終局：劍仙", d: "得道成仙，傳奇永流傳。", q: "隱娘已成劍仙矣。", e: 1000 }
+                ]
+            },
+            {
+                title: "杜子春",
+                desc: "金錢與道心的試煉。引用《唐人傳奇·杜子春》原文。",
+                steps: [
+                    { t: "落魄長安", d: "杜子春家道中落，流浪長安街頭。", q: "家產蕩盡，親戚相薄。", e: 0 },
+                    { t: "饑寒交迫", d: "冬日無衣無食，嘆息於東市。", q: "仰天長吁。", e: -50 },
+                    { t: "路遇老者", d: "一老者問其所需，子春訴苦。", q: "有老父策杖於前，問曰：君何嘆？", e: 0 },
+                    { t: "初獲贈金", d: "老者贈三百萬錢，子春大喜。", q: "乃與錢三百萬，不問姓名。", e: 300 },
+                    { t: "揮霍一空", d: "復態豪奢，兩年散盡家財。", q: "乘肥衣輕，兩年間蕩盡。", e: -300 },
+                    { t: "再遇老者", d: "又遇老者，雖愧但受其助。", q: "老父執其手曰：君復倒懸耶？", e: 0 },
+                    { t: "二獲千萬", d: "獲贈一千萬，誓言經營生計。", q: "乃與錢一千萬。", e: 1000 },
+                    { t: "故態復萌", d: "本性難移，金錢再度耗盡。", q: "錢既入手，心又翻然。", e: -1000 },
+                    { t: "羞見恩人", d: "三度落魄，掩面不敢見老者。", q: "掩面而走。", e: -100 },
+                    { t: "三獲三千", d: "老者贈三千萬，子春感悟。", q: "乃與錢三千萬。", e: 3000 },
+                    { t: "立德行善", d: "置產興業，接濟親族，復仇報恩。", q: "立德立功，在今夕矣。", e: -500 },
+                    { t: "雲台赴約", d: "如約至華山雲台峰見老者。", q: "及期，往華山雲台。", e: 0 },
+                    { t: "守護丹爐", d: "老者煉丹，囑其絕不作聲。", q: "慎勿語，雖尊神惡鬼，皆非真實。", e: 0 },
+                    { t: "猛虎毒龍", d: "幻象叢生，虎狼奔走，子春不動。", q: "猛虎毒龍，張牙舞爪。", e: 100 },
+                    { t: "雷霆萬鈞", d: "天降大雨，雷電交加，子春不懼。", q: "雷電晦冥，火輪下擊。", e: 100 },
+                    { t: "獄卒鬼神", d: "牛頭馬面，施以酷刑，子春不吟。", q: "獄卒鬼神，鑊湯刀鋸。", e: 100 },
+                    { t: "轉世為女", d: "死後轉世為盧家女，體弱多病。", q: "托生於單父縣盧氏。", e: 0 },
+                    { t: "啞女受辱", d: "雖聰慧但口不能言，受盡嘲諷。", q: "口無聲，親族以為啞。", e: -50 },
+                    { t: "出嫁盧生", d: "嫁予才子盧生，夫妻恩愛。", q: "同郡盧生，聞其容，納采。", e: 200 },
+                    { t: "生子之喜", d: "誕下一子，視若掌上明珠。", q: "生一男，聰慧。", e: 300 },
+                    { t: "丈夫震怒", d: "因終日不語，丈夫以為被輕視。", q: "盧生大怒：昔賈大夫之妻...", e: -100 },
+                    { t: "摔殺幼子", d: "夫奪子摔於石上，腦裂血濺。", q: "起奪其子，撲於石上。", e: -500 },
+                    { t: "愛子情切", d: "忘記囑託，失聲驚呼「噫」。", q: "愛生於心，不覺發聲曰：噫！", e: 0 },
+                    { t: "爐火爆裂", d: "驚呼破功，丹爐紫焰沖天。", q: "聲未絕，身坐舊處，紫焰燭天。", e: -2000 },
+                    { t: "功虧一簣", d: "老者嘆息，愛慾難除。", q: "喜怒哀懼惡欲皆忘，唯愛未除。", e: 0 },
+                    { t: "重回塵世", d: "被送回長安，恍如隔世。", q: "歸長安，自恨疏漏。", e: 0 },
+                    { t: "誓願重修", d: "欲再往雲台謝罪，心有不甘。", q: "復往雲台，人跡已絕。", e: 100 },
+                    { t: "人生如夢", d: "嘆人生富貴無常，終究是空。", q: "嘆人生之如寄。", e: 0 },
+                    { t: "大徹大悟", d: "雖未成仙，已悟透世情。", e: 200, q: "悟得大道。" },
+                    { t: "終局：歸真", d: "散盡千金還復來，平淡是真。", q: "終老於家。", e: 500 }
+                ]
+            },
+             {
+                title: "馮燕傳",
+                desc: "豪俠義氣，殺奸雪冤。引用《唐人傳奇·馮燕傳》原文。",
+                steps: [
+                    { t: "魏地豪俠", d: "馮燕，魏之豪俠，少時好勇鬥狠。", q: "馮燕者，魏豪人，少以意氣任俠。", e: 0 },
+                    { t: "避仇滑州", d: "因殺人避仇，流落滑州。", q: "殺人亡命，遊於滑。", e: -100 },
+                    { t: "軍中相識", d: "與軍將張嬰意氣相投，結為兄弟。", q: "與滑將張嬰飲，嬰有妻。", e: 50 },
+                    { t: "張嬰之妻", d: "張嬰妻貌美而心毒，見燕而悅。", q: "嬰之妻，見燕而悅之。", e: 0 },
+                    { t: "暗通款曲", d: "趁張嬰外出，二人私通。", q: "燕伺嬰出，通其妻。", e: -100 },
+                    { t: "醉酒歸家", d: "張嬰醉歸，馮燕急藏戶後。", q: "嬰醉歸，燕藏戶扇後。", e: 0 },
+                    { t: "遺落頭巾", d: "馮燕頭巾落枕畔，被張嬰壓住。", q: "巾落枕畔，為嬰所藉。", e: -50 },
+                    { t: "示意取巾", d: "馮燕示意妻取巾，妻誤會其意。", q: "燕指巾令取。", e: 0 },
+                    { t: "遞刀殺夫", d: "妻以為燕欲殺夫，竟遞刀於燕。", q: "妻以刀授燕。", e: 0 },
+                    { t: "驚覺蛇蠍", d: "馮燕大驚，此婦竟欲害親夫。", q: "燕視之，毒婦也。", e: 0 },
+                    { t: "揮刀斷頸", d: "為義殺婦，取巾而去。", q: "斷其頸，取巾而去。", e: 100 },
+                    { t: "張嬰醒悟", d: "張嬰醒見妻死，驚恐萬分。", q: "嬰醒，見妻死，大駭。", e: 0 },
+                    { t: "含冤入獄", d: "官府逮張嬰，嚴刑逼供。", q: "逮嬰，掠治千百。", e: -100 },
+                    { t: "無從自辯", d: "張嬰無法辯解，將判死罪。", q: "嬰不能自明，將就死。", e: -100 },
+                    { t: "挺身而出", d: "馮燕不忍累及無辜，自首認罪。", q: "燕聞之曰：豈可累無辜。", e: 200 },
+                    { t: "公堂陳詞", d: "詳述遞刀經過，眾皆駭然。", q: "具言其狀，一府大驚。", e: 0 },
+                    { t: "賈公之斷", d: "節度使賈耽認為馮燕是義士。", q: "賈公覽詞，以為義。", e: 100 },
+                    { t: "義薄雲天", d: "雖殺婦有罪，但情義可原。", q: "不忍因私害公。", e: 100 },
+                    { t: "法外開恩", d: "免其死罪，流放邊地。", q: "免死，流於邊。", e: 0 },
+                    { t: "名動河朔", d: "馮燕之名，傳遍北方。", q: "河朔間皆稱之。", e: 200 },
+                    { t: "遊俠歸來", d: "遇赦歸來，更添豪氣。", q: "後遇赦歸。", e: 100 },
+                    { t: "重逢故人", d: "與張嬰生死之交，情同手足。", q: "張嬰感其德。", e: 150 },
+                    { t: "仗義疏財", d: "所得賞賜，分予窮人。", q: "散金於市。", e: -200 },
+                    { t: "權貴莫視", d: "王公招攬，皆不屑一顧。", q: "不屑王侯。", e: 0 },
+                    { t: "隱於市井", d: "大隱於市，混跡屠沽。", q: "隱於屠沽。", e: 50 },
+                    { t: "詩人作傳", d: "沈亞之、元稹為其作傳寫詩。", q: "沈亞之作傳。", e: 100 },
+                    { t: "俠名遠播", d: "後世言俠，必推馮燕。", q: "言俠者宗馮燕。", e: 200 },
+                    { t: "正氣長存", d: "浩然正氣，令人起敬。", q: "正氣凜然。", e: 100 },
+                    { t: "古之烈士", d: "其行事如古之烈士。", q: "古烈士無以加。", e: 200 },
+                    { t: "終局：義俠", d: "義字當頭，千古流芳。", q: "義薄雲天。", e: 800 }
+                ]
+            },
+            {
+                title: "李娃傳",
+                desc: "才子佳人，歷經磨難。引用《唐人傳奇·李娃傳》原文。",
+                steps: [
+                    { t: "滎陽公子", d: "出身名門，攜重金赴京趕考。", q: "滎陽生，弱冠，攜資巨萬。", e: 0 },
+                    { t: "初入長安", d: "鮮衣怒馬，居於布政里。", q: "安抵長安，居布政里。", e: 0 },
+                    { t: "偶遇佳人", d: "遊街偶遇李娃，驚為天人。", q: "見一宅，有娃方憑欄，妖姿絕代。", e: 0 },
+                    { t: "詐落馬鞭", d: "假裝遺落馬鞭，藉機搭訕。", q: "詐墜鞭於地，候其從者。", e: -50 },
+                    { t: "登門拜訪", d: "投其所好，得見李娃。", q: "投刺，娃迎笑。", e: -100 },
+                    { t: "遷居其側", d: "棄舊居，搬至李娃鄰舍。", q: "乃徙居，日夕歡宴。", e: -200 },
+                    { t: "耗盡家財", d: "年餘，資財散盡，車馬皆賣。", q: "歲餘，資財蕩盡，僕馬皆去。", e: -500 },
+                    { t: "鴇母設計", d: "錢盡情絕，鴇母設計逐之。", q: "姥意漸怠，設詐逐之。", e: 0 },
+                    { t: "棄於荒野", d: "被棄於凶肆之中，無處可歸。", q: "生至，門戶闃然，不知所之。", e: -100 },
+                    { t: "大病幾死", d: "急火攻心，病於旅舍。", q: "生怨懣，絕食三日，遘疾甚篤。", e: -100 },
+                    { t: "淪為唱挽", d: "為殯葬業收留，習唱輓歌。", q: "凶肆主人憫其生，教之歌。", e: 50 },
+                    { t: "東西爭勝", d: "長安凶肆比試，一曲動京城。", q: "長安士女，無不屬目。", e: 200 },
+                    { t: "父子相見", d: "父入京述職，認出歌者乃其子。", q: "父見之，驚曰：此吾子也。", e: 0 },
+                    { t: "鞭打棄市", d: "父引以為恥，鞭打數百棄之。", q: "父怒，鞭之數百，棄於路。", e: -300 },
+                    { t: "淪為乞丐", d: "傷癒後淪為乞丐，巡門乞食。", q: "這爛祧，巡門乞食。", e: -100 },
+                    { t: "風雪哀鳴", d: "大雪紛飛，聲甚淒苦。", q: "大雪，生飢寒，聲甚酸楚。", e: -50 },
+                    { t: "李娃聞聲", d: "李娃聞其聲，知是公子。", q: "娃謂侍兒曰：此必生也。", e: 0 },
+                    { t: "抱頭痛哭", d: "見公子慘狀，李娃痛哭。", q: "娃前抱其頸，失聲長慟。", e: 0 },
+                    { t: "贖身救夫", d: "李娃自贖其身，誓救公子。", q: "娃計贖身，別賃良宅。", e: 500 },
+                    { t: "精心調養", d: "悉心照料，湯藥飲食。", q: "極其甘旨，旬月，肌體充澤。", e: 100 },
+                    { t: "重拾書本", d: "李娃逼其苦讀，準備科考。", q: "令生修業，旦夕孜孜。", e: 0 },
+                    { t: "三年苦讀", d: "懸梁刺股，學業大進。", q: "三年，業大就。", e: 100 },
+                    { t: "一舉奪魁", d: "應試禮部，高中榜首。", q: "一戰而霸，聲名籍甚。", e: 1000 },
+                    { t: "授官成都", d: "授成都府參軍，名動公卿。", q: "授成都府參軍。", e: 500 },
+                    { t: "勸離別去", d: "李娃欲功成身退，送君上任。", q: "今君功成，妾願歸養。", e: 0 },
+                    { t: "父子冰釋", d: "父鎮守成都，見子有成大喜。", q: "父鎮成都，見子大喜。", e: 300 },
+                    { t: "詳陳原委", d: "說明李娃之德，父感嘆不已。", q: "生具白其事，父感歎。", e: 0 },
+                    { t: "明媒正娶", d: "備六禮，迎李娃為正室。", q: "備六禮，訝娃。", e: 200 },
+                    { t: "持家有道", d: "李娃治家嚴謹，親戚稱羨。", q: "治家嚴整，親戚愛之。", e: 100 },
+                    { t: "汧國夫人", d: "封汧國夫人，四子皆顯貴。", q: "封汧國夫人，四子皆大官。", e: 1000 }
+                ]
+            }
+        ];
+
+        // --- STATE ---
+        let gameState = {
+            screen: 'cover',
+            players: [],
+            currIdx: 0,
+            map: null,
+            active: false
+        };
+
+        // --- AUDIO (Web Audio API for No-Delay SFX) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, dur, vol=0.1) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        // Tang Style Pentatonic Sounds
+        function sfx(type) {
+            if(type === 'click') playTone(800, 'triangle', 0.05);
+            if(type === 'roll') { for(let i=0;i<5;i++) setTimeout(()=>playTone(400+Math.random()*200, 'sine', 0.1), i*60); }
+            if(type === 'coin') { playTone(1200, 'sine', 0.1, 0.2); setTimeout(()=>playTone(1600, 'sine', 0.3, 0.1), 50); }
+            if(type === 'loss') { playTone(300, 'sawtooth', 0.4); }
+            if(type === 'step') playTone(200, 'triangle', 0.05, 0.05);
+            if(type === 'win') { 
+                [261, 329, 392, 523, 659].forEach((f,i) => setTimeout(()=>playTone(f, 'square', 0.6, 0.1), i*150));
+            }
+        }
+
+        // TTS
+        function speak(txt) {
+            if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(txt);
+                u.lang = 'zh-TW';
+                u.rate = 1.2;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        // --- INIT & SETUP ---
+        function showSetup() {
+            document.getElementById('cover-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+            renderPlayerInputs();
+            renderMapSelect();
+            sfx('click');
+        }
+
+        function renderPlayerInputs() {
+            const num = parseInt(document.getElementById('p-count').value);
+            const box = document.getElementById('player-config-area');
+            box.innerHTML = '';
+            
+            for(let i=1; i<=num; i++) {
+                const div = document.createElement('div');
+                div.className = 'player-row';
+                div.innerHTML = `
+                    <label>俠客 ${i}</label>
+                    <input type="text" id="p${i}-name" value="遊俠${i}" placeholder="輸入名號">
+                    <label>隨身錦囊（技能）</label>
+                    <select id="p${i}-skill">
+                        ${SKILLS.map((s, idx) => `<option value="${idx}">${s.name} - ${s.desc}</option>`).join('')}
+                    </select>
+                `;
+                box.appendChild(div);
+            }
+        }
+
+        let selectedMapIdx = 0;
+        function renderMapSelect() {
+            const box = document.getElementById('map-select-area');
+            box.innerHTML = MAPS.map((m, i) => `
+                <div class="map-card ${i===selectedMapIdx?'selected':''}" onclick="chooseMap(${i})">
+                    <div class="map-title">${m.title}</div>
+                    <div class="map-desc">${m.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        function chooseMap(i) {
+            selectedMapIdx = i;
+            renderMapSelect();
+            sfx('click');
+        }
+
+        function startGame() {
+            const num = parseInt(document.getElementById('p-count').value);
+            gameState.players = [];
+            
+            for(let i=1; i<=num; i++) {
+                const name = document.getElementById(`p${i}-name`).value || `遊俠${i}`;
+                const sIdx = document.getElementById(`p${i}-skill`).value;
+                gameState.players.push({
+                    id: i,
+                    name: name,
+                    skill: SKILLS[sIdx],
+                    money: 2000,
+                    pos: 0,
+                    color: ['#c93838', '#2b5a2b', '#1a3c7d', '#b8860b'][i-1],
+                    skip: false
+                });
+            }
+            
+            gameState.map = MAPS[selectedMapIdx];
+            gameState.currIdx = 0;
+            gameState.active = true;
+            
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            initGameUI();
+            sfx('win');
+            speak(`歡迎來到${gameState.map.title}`);
+        }
+
+        // --- GAME LOOP ---
+        function initGameUI() {
+            document.getElementById('game-map-title').innerText = gameState.map.title;
+            
+            // Build Map
+            const container = document.getElementById('map-cells-container');
+            container.innerHTML = '';
+            gameState.map.steps.forEach((step, idx) => {
+                const div = document.createElement('div');
+                div.className = 'map-cell';
+                div.id = `cell-${idx}`;
+                div.innerHTML = `
+                    <div class="cell-index">${idx===0?'起':(idx===29?'終':idx+1)}</div>
+                    <div class="cell-body">
+                        <div class="cell-header">
+                            <span class="cell-title">${step.t}</span>
+                            ${step.e!==0 ? `<span class="cell-effect" style="color:${step.e>0?'#b8860b':'#c93838'}">${step.e>0?'+':''}${step.e}兩</span>` : ''}
+                        </div>
+                        <div class="cell-text">${step.d}</div>
+                        <div class="cell-quote">"${step.q}"</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            // Add tokens
+            gameState.players.forEach(p => {
+                const t = document.createElement('div');
+                t.className = 'player-token';
+                t.id = `tok-${p.id}`;
+                t.innerText = p.name[0];
+                t.style.background = p.color;
+                document.getElementById(`cell-0`).appendChild(t);
+            });
+
+            updateHUD();
+        }
+
+        function updateHUD() {
+            // HUD
+            const box = document.getElementById('hud-players');
+            box.innerHTML = gameState.players.map((p, i) => `
+                <div class="hud-player ${i===gameState.currIdx?'active':''}">
+                    <span class="hud-name" style="color:${p.color}">${p.name}</span>
+                    <span class="hud-money">${p.money} 兩</span>
+                    <span class="hud-skill">${p.skill.name}</span>
+                </div>
+            `).join('');
+
+            // Controls
+            const curr = gameState.players[gameState.currIdx];
+            document.getElementById('turn-indicator').innerText = `${curr.name} 回合`;
+            document.getElementById('turn-indicator').style.color = curr.color;
+            
+            const btnSkill = document.getElementById('btn-skill');
+            if(curr.skill.passive) {
+                btnSkill.disabled = true;
+                btnSkill.style.opacity = 0.5;
+                btnSkill.innerText = "被動技能";
+            } else {
+                btnSkill.disabled = false;
+                btnSkill.style.opacity = 1;
+                btnSkill.innerText = `發動：${curr.skill.name}`;
+            }
+        }
+
+        let isRolling = false;
+        function actionRoll() {
+            if(isRolling || !gameState.active) return;
+            const p = gameState.players[gameState.currIdx];
+
+            if(p.skip) {
+                log('系統', `${p.name} 暫停一回合`);
+                speak(`${p.name} 暫停`);
+                p.skip = false;
+                nextTurn();
+                return;
+            }
+
+            // Passive: Income
+            if(p.skill.id === 's7') {
+                p.money += 80;
+                log('技能', `日進斗金：${p.name} 獲得 80 兩`);
+            }
+
+            isRolling = true;
+            sfx('roll');
+            const dBox = document.getElementById('dice-container');
+            dBox.classList.add('anim-shake');
+
+            let count = 0;
+            const interval = setInterval(() => {
+                dBox.innerText = Math.floor(Math.random()*6)+1;
+                count++;
+                if(count > 10) {
+                    clearInterval(interval);
+                    dBox.classList.remove('anim-shake');
+                    let val = Math.floor(Math.random()*6)+1;
+                    
+                    if(p.doubleNext) {
+                        val *= 2;
+                        p.doubleNext = false;
+                        log('技能', '神行太保發動，點數加倍！');
+                    }
+
+                    dBox.innerText = val;
+                    speak(`擲出 ${val} 點`);
+                    moveP(val);
+                }
+            }, 60);
+        }
+
+        function moveP(steps) {
+            const p = gameState.players[gameState.currIdx];
+            let target = p.pos + steps;
+            if(target > 29) target = 29;
+
+            let c = p.pos;
+            const timer = setInterval(() => {
+                if(c < target) {
+                    c++;
+                    updTok(p.id, c);
+                    sfx('step');
+                } else if (c > target) {
+                     c--; // Backwards logic if needed later
+                     updTok(p.id, c);
+                } else {
+                    clearInterval(timer);
+                    p.pos = c;
+                    land(p);
+                }
+            }, 300);
+        }
+
+        function updTok(pid, idx) {
+            const cell = document.getElementById(`cell-${idx}`);
+            const t = document.getElementById(`tok-${pid}`);
+            cell.appendChild(t);
+            cell.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+
+        function land(p) {
+            const step = gameState.map.steps[p.pos];
+            
+            // Modal
+            document.getElementById('modal-title').innerText = step.t;
+            document.getElementById('modal-desc').innerText = step.d;
+            document.getElementById('modal-quote').innerText = step.q;
+            
+            let effTxt = "";
+            let amount = step.e;
+
+            // Shield Passive
+            if(amount < 0 && p.skill.id === 's4') {
+                amount = 0;
+                effTxt = "(護身符抵擋損失)";
+            }
+
+            if(amount !== 0) {
+                p.money += amount;
+                effTxt += amount > 0 ? `獲得 ${amount} 兩` : `失去 ${Math.abs(amount)} 兩`;
+                sfx(amount > 0 ? 'coin' : 'loss');
+            } else {
+                effTxt += "無金錢變動";
+            }
+            
+            // Bankruptcy / Revive
+            if(p.money < 0) {
+                if(p.skill.id === 's8' && !p.usedRevive) {
+                    p.money = 1000;
+                    p.usedRevive = true;
+                    effTxt += " -> 九轉金丹復活！";
+                } else {
+                    p.money = 0;
+                }
+            }
+
+            document.getElementById('modal-effect').innerText = effTxt;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            
+            speak(step.d);
+            log(p.name, `${step.t}：${step.d}`);
+
+            // Win?
+            if(p.pos === 29) {
+                // Game Over logic
+                setTimeout(() => doGameOver(), 2000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+            if(gameState.active) {
+                isRolling = false;
+                nextTurn();
+            }
+        }
+
+        function nextTurn() {
+            gameState.currIdx = (gameState.currIdx + 1) % gameState.players.length;
+            updateHUD();
+            // Highlight
+            const p = gameState.players[gameState.currIdx];
+            document.querySelectorAll('.map-cell').forEach(c => c.classList.remove('active-turn'));
+            document.getElementById(`cell-${p.pos}`).classList.add('active-turn');
+            document.getElementById(`cell-${p.pos}`).scrollIntoView({behavior:'smooth', block:'center'});
+            
+            speak(`${p.name}的回合`);
+        }
+
+        function actionSkill() {
+            if(isRolling) return;
+            const p = gameState.players[gameState.currIdx];
+            if(p.usedSkillTurn) {
+                alert("本回合已用過");
+                return;
+            }
+
+            const others = gameState.players.filter(x => x.id !== p.id);
+            let msg = "";
+
+            if(p.skill.id === 's1') { p.doubleNext = true; msg="下回移動加倍"; }
+            if(p.skill.id === 's2') { p.money+=600; msg="獲得600兩"; sfx('coin'); }
+            if(p.skill.id === 's3') { 
+                others.forEach(o => { 
+                    let v = Math.min(o.money, 200); 
+                    o.money-=v; p.money+=v; 
+                }); 
+                msg="竊取眾人銀兩"; 
+            }
+            if(p.skill.id === 's5') {
+                if(others.length) {
+                    const t = others[Math.floor(Math.random()*others.length)];
+                    let tmp = p.pos; p.pos = t.pos; t.pos = tmp;
+                    updTok(p.id, p.pos); updTok(t.id, t.pos);
+                    msg=`與 ${t.name} 換位`;
+                }
+            }
+            if(p.skill.id === 's6') {
+                if(others.length) {
+                    const t = others[0];
+                    let np = Math.max(0, t.pos-3);
+                    t.pos = np; updTok(t.id, t.pos);
+                    msg=`${t.name} 後退3格`;
+                }
+            }
+            if(p.skill.id === 's9') {
+                moveP(5); p.usedSkillTurn=true; return; // Special flow
+            }
+            if(p.skill.id === 's10') {
+                if(others.length) { others[0].skip=true; msg=`${others[0].name} 下回暫停`; }
+            }
+
+            p.usedSkillTurn = true;
+            log('技能', `${p.skill.name}：${msg}`);
+            speak(p.skill.name);
+            updateHUD();
+        }
+
+        function log(who, txt) {
+            const box = document.getElementById('story-scroll');
+            const div = document.createElement('div');
+            div.className = 'story-block';
+            div.innerHTML = `<small>${who}</small><p>${txt}</p>`;
+            box.insertBefore(div, box.firstChild);
+        }
+
+        function doGameOver() {
+            gameState.active = false;
+            document.getElementById('modal-overlay').classList.add('hidden'); // close landing modal
+            
+            const sorted = [...gameState.players].sort((a,b) => b.money - a.money);
+            const winner = sorted[0];
+
+            let html = `<h2 style="color:var(--tang-red); font-size:2rem; margin-bottom:20px;">大唐遊蹤 終局</h2>`;
+            html += `<div style="font-size:1.5rem; margin-bottom:20px; color:#b8860b;">魁首：${winner.name}</div>`;
+            html += `<div style="text-align:left; display:inline-block;">`;
+            sorted.forEach((p, i) => {
+                html += `<div style="padding:10px; border-bottom:1px solid #eee;">
+                    第${i+1}：${p.name} <span style="float:right; font-weight:bold;">${p.money} 兩</span>
+                </div>`;
+            });
+            html += `</div><br><button class="btn" onclick="location.reload()" style="margin-top:20px;">再歷紅塵</button>`;
+
+            const overDiv = document.createElement('div');
+            overDiv.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center;";
+            overDiv.innerHTML = html;
+            document.body.appendChild(overDiv);
+            
+            sfx('win');
+            speak(`遊戲結束，勝利者是${winner.name}`);
+        }
+
+        function tryExit() {
+            if(confirm("確定要結束這趟旅程嗎？")) location.reload();
+        }
+
+    </script>
+</body>
+</html>
